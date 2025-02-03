@@ -101,7 +101,7 @@ func (c *SubmitSM) Split() (multiSubSM []*SubmitSM, err error) {
 // Marshal implements PDU interface.
 func (c *SubmitSM) Marshal(b *ByteBuffer) {
 	c.base.marshal(b, func(b *ByteBuffer) {
-		b.Grow(len(c.ServiceType) + len(c.ScheduleDeliveryTime) + len(c.ValidityPeriod) + 10)
+		b.Grow(len(c.ServiceType) + len(c.ScheduleDeliveryTime) + len(c.ValidityPeriod) + 11)
 		_ = b.WriteCString(c.ServiceType)
 		c.SourceAddr.Marshal(b)
 		c.DestAddr.Marshal(b)
