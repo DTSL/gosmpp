@@ -91,6 +91,7 @@ func (c *SubmitSM) Split() (multiSubSM []*SubmitSM, err error) {
 			ValidityPeriod:       c.ValidityPeriod,
 			RegisteredDelivery:   c.RegisteredDelivery,
 			ReplaceIfPresentFlag: c.ReplaceIfPresentFlag,
+			DataCoding:           c.DataCoding,
 			Message:              *msg,
 		})
 	}
@@ -101,7 +102,6 @@ func (c *SubmitSM) Split() (multiSubSM []*SubmitSM, err error) {
 func (c *SubmitSM) Marshal(b *ByteBuffer) {
 	c.base.marshal(b, func(b *ByteBuffer) {
 		b.Grow(len(c.ServiceType) + len(c.ScheduleDeliveryTime) + len(c.ValidityPeriod) + 10)
-
 		_ = b.WriteCString(c.ServiceType)
 		c.SourceAddr.Marshal(b)
 		c.DestAddr.Marshal(b)
@@ -112,6 +112,7 @@ func (c *SubmitSM) Marshal(b *ByteBuffer) {
 		_ = b.WriteCString(c.ValidityPeriod)
 		_ = b.WriteByte(c.RegisteredDelivery)
 		_ = b.WriteByte(c.ReplaceIfPresentFlag)
+		_ = b.WriteByte(c.DataCoding)
 		c.Message.Marshal(b)
 	})
 }
@@ -129,7 +130,9 @@ func (c *SubmitSM) Unmarshal(b *ByteBuffer) error {
 									if c.ValidityPeriod, err = b.ReadCString(); err == nil {
 										if c.RegisteredDelivery, err = b.ReadByte(); err == nil {
 											if c.ReplaceIfPresentFlag, err = b.ReadByte(); err == nil {
-												err = c.Message.Unmarshal(b, (c.EsmClass&data.SM_UDH_GSM) > 0)
+												if c.DataCoding, err = b.ReadByte(); err == nil {
+													err = c.Message.Unmarshal(b, (c.EsmClass&data.SM_UDH_GSM) > 0)
+												}
 											}
 										}
 									}
